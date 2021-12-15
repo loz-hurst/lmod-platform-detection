@@ -5,6 +5,7 @@ local os_version = "UNKNOWN"
 local os_version_major = "UNKNOWN"
 local os_distribution = "UNKNOWN"
 -- Architecture variables
+local arch_platform = "UNKNOWN"
 local arch_cpu_fullname = "UNKNOWN"
 local arch_cpu_shortname = "UNKNOWN"
 local arch_cpu_compat = ""
@@ -81,6 +82,11 @@ function detect_arch()
 			["49"] = "zen2", -- AMD Zen 2
 		},
 	}
+    -- Only care about the family to detect intel vs amd (vs arm)
+    local cpu_plat_table = {
+        ["6"] = "intel",
+        ["23"] = "amd",
+    }
 	local cpu_names = {
 		has = 'Haswell or Broadwell',
 		sky = 'Skylake',
@@ -95,17 +101,18 @@ function detect_arch()
 		zen2 = {'zen'},
 	}
 
-	local cpu_family = cpu_table[cpu_family][cpu_model]
+	local cpu_family_name = cpu_table[cpu_family][cpu_model]
 
-	if cpu_family == "sky" then
+	if cpu_family_name == "sky" then
 		-- Skylake with avx512 VNNI is Cascade Lake
 		-- see: https://en.wikipedia.org/wiki/AVX-512#CPUs_with_AVX-512
 		if string.find(cpu_flags, 'avx512_vnni') then
-			cpu_family = 'cas'
+			cpu_family_name = 'cas'
 		end
 	end
 
-	arch_cpu_shortname = cpu_family
+    arch_platform = cpu_plat_table[cpu_family]
+	arch_cpu_shortname = cpu_family_name
 	arch_cpu_fullname = cpu_names[arch_cpu_shortname]
 	if backward_compat[arch_cpu_shortname] ~= nil then
 		arch_cpu_compat = table.concat(backward_compat[arch_cpu_shortname], ' ')
@@ -128,4 +135,5 @@ setenv("HPC_OS_DIST", os_distribution)
 setenv("HPC_ARCH_CPU_FULLNAME", arch_cpu_fullname)
 setenv("HPC_ARCH_CPU_SHORTNAME", arch_cpu_shortname)
 setenv("HPC_ARCH_CPU_COMPAT", arch_cpu_compat)
+setenv("HPC_ARCH_PLATFORM", arch_platform)
 
