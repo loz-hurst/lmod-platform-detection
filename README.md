@@ -1,4 +1,11 @@
---[[
+# Lmod platform detection
+
+This code accompanies my [blog post on Platform detection with Lmod](https://blog.entek.org.uk/notes/2021/07/27/platform-detection-with-lmod.html)
+
+Please refer to that post for detailed background and development information.
+
+## Licence - GPLv3
+
 Copyright 2021 Laurence Alexander Hurst
 
 This program is free software: you can redistribute it and/or modify
@@ -13,12 +20,3 @@ GNU General Public License for more details.
 
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
-]]--
-
-local hook = require("Hook")
-
-local function load_hook(t)
-	LmodMessage(t.modFullName)
-end
-
-hook.register("load", load_hook)
