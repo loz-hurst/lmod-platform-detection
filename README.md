@@ -4,7 +4,7 @@ This code accompanies my [blog post on Platform detection with Lmod](https://blo
 
 Please refer to that post for detailed background and development information.
 
-## Licence - GPLv3
+## Licence - GPVv3
 
 Copyright 2021 Laurence Alexander Hurst
 
