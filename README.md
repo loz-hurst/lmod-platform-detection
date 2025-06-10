@@ -2,6 +2,8 @@
 
 This code accompanies my [blog post on Platform detection with Lmod](https://blog.entek.org.uk/notes/2021/07/27/platform-detection-with-lmod.html)
 
+[Lmod hompage](https://lmod.readthedocs.io/)
+
 Please refer to that post for detailed background and development information.
 
 ## Licence - GPVv3
