@@ -41,33 +41,31 @@ function get_command_ouput(command)
 	return string.gsub(capture(command), '%s+$', '')
 end
 
-function detect_os()
-	-- Detech the operating system
-	local short_version_table = {
-		Scientific = "EL",
-		RedHatEnterpriseServer = "EL",
-		CentOS = "EL",
-		RedHatEnterprise = "EL",
-		Debian = "Deb",
-		Ubuntu = "Ubt"
-	}
+function load_os_release()
+    -- Open the os-release file
+    local file = io.open("/etc/os-release", "r")
+    if not file then
+        LmodError("Failed to open /etc/os-release - cannot detect OS information")
+        return
+    end
 
-	if file_exists("/usr/bin/lsb_release") then
-		os_version = get_command_ouput("lsb_release -r | sed 's/^Release:[[:space:]]\\+\\([0-9.]\\+\\)$/\\1/'")
-		os_distribution = get_command_ouput("lsb_release -i | sed 's/^Distributor ID:[[:space:]]\\+\\([a-zA-Z0-9]\\+\\)$/\\1/'")
-
-		os_fullname = os_distribution.."-"..os_version
-		
-		if os_distribution == "Ubuntu" then
-			-- Ubuntu is unique in that the version after the dot is not a minor release number
-			os_version_major = os_version
-		else
-			os_version_major = string.sub(os_version, string.find(os_version, '^%d+')) 
-		end
-		os_shortname = short_version_table[os_distribution]..'-'..os_version_major
-	else
-		LmodError("No lsb_release command in /usr/bin - this version of the module has no fallback detection methods.")
-	end
+    -- Parse each line and set environment variables
+    for line in file:lines() do
+        -- Skip comments and empty lines
+        if not line:match("^#") and line:find("=") then
+            -- Split into key and value
+            local key, value = line:match("^([^=]+)=['\"]?(.-)['\"]?$")
+            
+            -- Remove any remaining quotes from value
+            value = value:gsub("['\"]", "")
+            
+            -- Set as HPC_ prefixed environment variable
+            if key and value then
+                setenv("HPC_OS_RELEASE_"..key, value)
+            end
+        end
+    end
+    file:close()
 end
 
 function detect_arch()
@@ -142,12 +140,6 @@ if mode() == "load" then
 	detect_arch()
 end
 
--- Export the OS variables
-setenv("HPC_OS_FULL", os_fullname)
-setenv("HPC_OS_SHORT", os_shortname)
-setenv("HPC_OS_VERSION", os_version)
-setenv("HPC_OS_VERSION_MAJOR", os_version_major)
-setenv("HPC_OS_DIST", os_distribution)
 -- Export the architecture variables
 setenv("HPC_ARCH_CPU_FULLNAME", arch_cpu_fullname)
 setenv("HPC_ARCH_CPU_SHORTNAME", arch_cpu_shortname)
